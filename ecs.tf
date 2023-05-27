@@ -36,13 +36,13 @@ resource "aws_security_group" "ecs-alb-only-sg" {
   ingress {
     from_port       = 0
     to_port         = 0
-    protocol        = -1
+    protocol        = "-1"
     security_groups = ["${aws_security_group.node-alb-sg.id}"]
   }
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = -1
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -54,7 +54,7 @@ resource "aws_ecs_task_definition" "my-node-app-task" {
   family = "my_node_app_task"
   container_definitions = jsonencode([
     {
-      "name" : "my_node_app_container",
+      "name" : "my_node_app_task",
       "image" : "${data.aws_ecr_repository.my-node-repo.repository_url}:latest",
       "essential" : true,
       "portMappings" : [

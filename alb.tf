@@ -32,7 +32,7 @@ resource "aws_security_group" "node-alb-sg" {
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "tcp"
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -63,4 +63,10 @@ resource "aws_lb_listener" "node-app-lb-listner" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.node-app-target-group.arn
   }
+}
+
+
+output "alb_sa" {
+  value = aws_alb.node_appliaction_load_balancer.dns_name
+
 }
