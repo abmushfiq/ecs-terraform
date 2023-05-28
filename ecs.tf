@@ -22,7 +22,7 @@ resource "aws_ecs_service" "my-node-app-service" {
 
     target_group_arn = aws_lb_target_group.node-app-target-group.arn
     container_name   = aws_ecs_task_definition.my-node-app-task.family
-    container_port   = 3000
+    container_port   = 80
   }
 
 
@@ -55,12 +55,27 @@ resource "aws_ecs_task_definition" "my-node-app-task" {
   container_definitions = jsonencode([
     {
       "name" : "my_node_app_task",
-      "image" : "${data.aws_ecr_repository.my-node-repo.repository_url}:latest",
+      # "image" : "${data.aws_ecr_repository.my-node-repo.repository_url}:latest",
+      "image" : "${data.aws_ecr_repository.myrepo.repository_url}:latest"
       "essential" : true,
       "portMappings" : [
         {
-          "containerPort" : 3000,
-          "hostPort" : 3000
+          "containerPort" : 80,
+          "hostPort" : 80
+        }
+      ],
+      "environment" : [
+        {
+          "name" : "PG_HOST",
+          "value" : "${element(split(":", aws_db_instance.my_lab_postgresql.endpoint), 0)}"
+        },
+        {
+          "name" : "PG_USERNAME",
+          "value" : "myrdsuser"
+        },
+        {
+          "name" : "PG_PASSWORD",
+          "value" : "mypassword1234"
         }
       ],
       "memory" : 500,
@@ -75,6 +90,7 @@ resource "aws_ecs_task_definition" "my-node-app-task" {
   cpu                      = 256
   execution_role_arn       = aws_iam_role.ecsTaskExecutionRole.arn
   task_role_arn            = aws_iam_role.ecsTaskRole.arn
+  depends_on               = [aws_db_instance.my_lab_postgresql]
 }
 
 
